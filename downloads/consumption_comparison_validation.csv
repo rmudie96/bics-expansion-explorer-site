@@ -1,0 +1,6 @@
+test,status,evidence
+Consumption comparison: matched support forecasts,PASS,"15.7 TWh BICS and 13.6 TWh EII retained, not averaged"
+Consumption comparison: non-overlapping partition,PASS,Reconciled again by industry without losing a support control
+Consumption comparison: all seats conserve each national total,PASS,Max error GBP 0.00002265; 632 seats times three methods
+Consumption comparison: paired policy identities,PASS,"Extra benefit and changes use paired methods, never subtract unmatched endpoints"
+Consumption comparison: actual latest panel retained,PASS,Comparison copies existing central results without recalibration

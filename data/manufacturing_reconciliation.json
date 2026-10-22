@@ -1,0 +1,21 @@
+{
+  "model_version": "BICS_AUDITED_REFERENCE_20261022",
+  "audit_date": "2026-10-22",
+  "manufacturing_grid_mwh": 62081802.81688634,
+  "rate_gbp_mwh": 40.0,
+  "gross_before_support_gbp": 2483272112.6754537,
+  "supercharger_equivalent_gbp": 511873248.8310034,
+  "allocated_current_bics_manufacturing_gbp": 576398961.1826797,
+  "expanded_manufacturing_after_supercharger_gbp": 1971398863.8444502,
+  "additional_quantified_manufacturing_gbp": 1394999902.6617708,
+  "makeuk_reported_cost_gbp": 3300000000.0,
+  "makeuk_implied_mwh_at_40": 82500000.0,
+  "makeuk_report_url": "https://www.makeuk.org/docs/delivering-bicspdf/download?attachment=",
+  "makeuk_reconciliation_status": "UNRESOLVED_REPORT_DOES_NOT_PUBLISH_UNDERLYING_CONSUMPTION_OR_COST_BRIDGE",
+  "scope_correction": "Actual-policy baseline uses the published 15.7TWh control; expansion benefits within listed industries are included. Nuclear and other unestimated increments remain excluded; this is a quantified subtotal and a model estimate with documented limitations.",
+  "government_announced_current_scheme_gbp_up_to": 600000000.0,
+  "published_bics_control_mwh": 15700000.0,
+  "published_eii_control_mwh": 13600000.0,
+  "publication_status": "PUBLISHED_WITH_DOCUMENTED_LIMITATIONS",
+  "government_comparison": "The 15.7TWh official scheme-wide forecast corresponds to GBP628m at the exercise rate of GBP40/MWh. Manufacturing is its allocated subset, not the earlier full-industry baseline."
+}

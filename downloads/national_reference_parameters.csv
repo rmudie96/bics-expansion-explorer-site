@@ -1,0 +1,8 @@
+parameter,reference_value,evidence_status,source_or_limitation,model_version
+relief_rate_gbp_mwh,40.0,POLICY_ASSUMPTION,Agreed £40/MWh universal expansion scenario; not an observed bill saving.,BICS_AUDITED_REFERENCE_20261022
+uptake,1.0,POLICY_ASSUMPTION,Automatic full coverage in this exercise.,BICS_AUDITED_REFERENCE_20261022
+minimum_consumption_mwh,0.0,POLICY_ASSUMPTION,No threshold in expansions. Actual-policy baseline uses the published BICS forecast; no site distribution model.,BICS_AUDITED_REFERENCE_20261022
+overall_consumption_multiplier,1.0,NO_STRESS_MULTIPLIER,Published and documented estimated controls retained without an invented ±10% margin.,BICS_AUDITED_REFERENCE_20261022
+supercharger_twh,13.6,PUBLISHED_REFERENCE,DESNZ September 2026 forecast of 2027/28 EII-exempt electricity; industry allocation remains modelled.,BICS_AUDITED_REFERENCE_20261022
+current_bics_twh,15.7,PUBLISHED_REFERENCE,DESNZ September 2026 forecast of 2027/28 BICS-exempt electricity; class allocation interpolates DBT bounds to this aggregate.,BICS_AUDITED_REFERENCE_20261022
+commercial_allocation_multiplier,1.0,NO_STRESS_MULTIPLIER,No arbitrary ±20% scaling; allocation uses APS spending shares against published DUKES commercial total.,BICS_AUDITED_REFERENCE_20261022

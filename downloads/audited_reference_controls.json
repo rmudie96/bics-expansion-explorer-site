@@ -1,0 +1,35 @@
+{
+  "model_version": "BICS_AUDITED_REFERENCE_20261022",
+  "benefit_year": "2027-2028",
+  "bics_control_mwh": 15700000.0,
+  "eii_control_mwh": 13600000.0,
+  "actual_eii_2025_26_mwh": 12700000,
+  "baseline_interval_position": 0.6525239770728108,
+  "baseline_allocation_rule": "lo + position*(hi-lo); position determined by independent 15.7TWh aggregate, not Make UK",
+  "projection_multipliers": {
+    "iron_and_steel": 1.82270211884849,
+    "other_industry": 0.994229335053315,
+    "commercial": 1.00881618896925,
+    "operational_energy_industry": 1.0
+  },
+  "projection_basis": "Annex F sector-specific reference electricity trends; .75*CY2027+.25*CY2028 divided by CY2025; applied to observed grid consumption with fixed grid share. Operational energy industries retained flat; unknown nuclear/gas split not invented. Whole-economy growth is not used.",
+  "other_fuel_remaining_unallocated_mwh": 583042.1931641061,
+  "nuclear_additional_upper_bound_gbp": 23321687.726564243,
+  "ro_source": "https://www.gov.uk/government/publications/renewables-obligation-level-calculations-2027-to-2028/calculating-the-level-of-the-renewables-obligation-for-2027-to-2028",
+  "impact_assessment_source": "https://www.legislation.gov.uk/ukia/2026/149/pdfs/ukia_20260149_en.pdf",
+  "eep_source": "https://assets.publishing.service.gov.uk/media/6981d642e8900d4c455f374a/Annex_F_final_energy_demand_TWh.ods",
+  "publication_status": "AUDITED_REFERENCE_WITH_EXPLICIT_ALLOCATION_AND_COVERAGE_LIMITS",
+  "replaced_errors": [
+    "Full-SIC baseline excluded expansion within eligible industries",
+    "ECUK rigid SIC2 proxies conflicted with published eligible-consumption floors",
+    "Old 13.4TWh forecast superseded by 13.6TWh matched-year forecast"
+  ],
+  "source_hashes": {
+    "data/raw/dukes_52.xlsx": "2da4938c1aef7074637ca535079f289fbc9e9b93bffb611030c4397f7ddd2095",
+    "data/raw/aps_main_table.xlsx": "9ae792e79c9c94997d22f2aa44d4e77753f495d1f940d3b2f89829b5391fa38f",
+    "data/raw/bics_sectors.ods": "587fff7e8414753816a6ae58c4ea576366a2ecf483137f2d133b99d76544e918",
+    "data/raw/ro_2027_page.html": "4796830d0f637b95dbe380095631ee8fcf597f4ff823d194e758c61b0547f9a8",
+    "data/raw/bics_impact_assessment_20260907.pdf": "33295d33a4ebf80333ffa4525126809db9c0c18d673cac89796011bf0f4de142",
+    "data/raw/eep_2024_2050_annex_f_twh.ods": "58be59c9fdae2079882ab64fc0a35753553b6b869b1ff139bf33e5c88e9d1484"
+  }
+}
