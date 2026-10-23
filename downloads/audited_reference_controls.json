@@ -5,7 +5,7 @@
   "eii_control_mwh": 13600000.0,
   "actual_eii_2025_26_mwh": 12700000,
   "baseline_interval_position": 0.6525239770728108,
-  "baseline_allocation_rule": "lo + position*(hi-lo); position determined by independent 15.7TWh aggregate, not Make UK",
+  "baseline_allocation_rule": "lo + position*(hi-lo); position determined by published 15.7TWh aggregate",
   "projection_multipliers": {
     "iron_and_steel": 1.82270211884849,
     "other_industry": 0.994229335053315,

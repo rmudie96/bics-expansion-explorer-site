@@ -18,4 +18,4 @@ Browser checks:
 - Without-expansion map displays GBP628m nationally and current-policy local ranges.
 - With-expansion manufacturing view and Bury South cards display current, additional and paired combined relief; all three allocations are visible.
 
-Computational checks do not prove empirical accuracy. Coverage gaps, support allocations and forecasting assumptions remain. The Make UK consumption bridge remains unreconciled. The published explorer retains these evidence limitations.
+Computational checks do not prove empirical accuracy. Coverage gaps, support allocations and forecasting assumptions remain. The published explorer retains these evidence limitations.

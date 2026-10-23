@@ -59,11 +59,9 @@ Water, waste and repair electricity uses an expenditure share of the broader com
 
 Local ranges compare employment, regional GVA and regional purchases allocations of the same national industry reference. BRES 2024 workplace employees locate industry activity; ABS 2024 regional output/purchases per worker modify employment weights, then weights are normalised separately within each class. These ranges do not include all uncertainty in national disaggregation, baseline shares, forecasts or individual sites and are not confidence intervals. Additional national allocation methods and projection alternatives are separate audit comparisons; agreement is not validation.
 
-## Make UK comparison
+## Relief assumption
 
-Make UK's May 2026 report, Delivering the British Industrial Competitiveness Scheme, reports a £3.3bn annual cost for an expanded scheme and proposes £40/MWh relief. Its published headline does not identify the detailed electricity quantities or deductions for existing support behind that total. It cannot be compared directly with the additional savings above current support calculated here.
-
-This model's manufacturing calculation starts with approximately £2.48bn before existing-support deductions. Its geographical scope, grid-electricity coverage and reference periods are set out above. The published Make UK costing does not provide enough information to quantify each source of difference. Make UK's forecast additional tax receipts are a separate macroeconomic estimate and are not deducted from direct bill savings here.
+The model uses Make UK’s £40/MWh relief assumption and applies it to all qualifying consumption, with automatic, 100% take-up in the expansion. Electricity quantities are estimated from the official datasets described above.
 
 ## Verification
 
