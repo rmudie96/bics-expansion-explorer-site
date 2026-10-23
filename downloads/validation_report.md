@@ -4,7 +4,7 @@ Model BICS_AUDITED_REFERENCE_20261022. Status: published model estimates with do
 
 - Financial checks: 48 passed.
 - Python tests: 33 passed.
-- Website/data tests: 14 passed.
+- Website/data tests: 17 passed.
 - The 15.7 TWh BICS and 13.6 TWh EII national controls are preserved; support and remaining grid consumption partition without double subtraction.
 - Current support remains within published sector intervals. Additional benefit can arise within listed industries.
 - All 632 constituencies have three geographical allocations and visible method ranges. These are not confidence intervals.
@@ -15,5 +15,7 @@ Browser checks:
 - Bury South shows separate three-method ranges for both bases and paired changes under each method.
 - Switching from production to manufacturing updates the local comparison and retains the latest-year map and industry breakdown.
 - Methodology visibly names DUKES 2026, explains averaging before the shared projection, unchanged support totals and interaction with the three geographical matrices.
+- Without-expansion map displays GBP628m nationally and current-policy local ranges.
+- With-expansion manufacturing view and Bury South cards display current, additional and paired combined relief; all three allocations are visible.
 
 Computational checks do not prove empirical accuracy. Coverage gaps, support allocations and forecasting assumptions remain. The Make UK consumption bridge remains unreconciled. The published explorer retains these evidence limitations.

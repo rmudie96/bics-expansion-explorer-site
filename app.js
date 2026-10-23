@@ -1,4 +1,4 @@
-import {allocationRange,rangeMoney,METHODS,SECTIONS,money,searchSeats,readState,stateHash,csv,industryRows,divisionBreakdown,colourBin} from './lib.js';
+import {allocationRange,rangeMoney,METHODS,MAP_MEASURES,policyValue,policyRange,SECTIONS,money,searchSeats,readState,stateHash,csv,industryRows,divisionBreakdown,colourBin} from './lib.js';
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -12,6 +12,9 @@ async function json(url){const r=await fetch(url);if(!r.ok)throw Error(`Could no
 function selectedRow(method=state.method){return byKey.get(`${state.seat}/${method}`);}
 function selectedValue(row,scenario=state.scenario){return row?.[`${scenario}_gbp_per_year`];}
 function seatRange(code,scenario=state.scenario){return allocationRange(Object.keys(METHODS).map(m=>byKey.get(`${code}/${m}`)),scenario);}
+function mapValue(row){return policyValue(row,state.scenario,state.measure);}
+function mapRange(code){return policyRange(Object.keys(METHODS).map(m=>byKey.get(`${code}/${m}`)),state.scenario,state.measure);}
+function mapLabel(){return state.measure==='CURRENT'?'Without expansion · current BICS forecast':`${MAP_MEASURES[state.measure]} · ${scenarioName()}`;}
 function scenarioName(){return state.scenario==='C_ALL'?'Manufacturing expansion · quantified scope':'Production expansion · quantified scope';}
 function announce(message){$('announcer').textContent=message;}
 function update(next,{focus=false,push=true}={}){
@@ -56,8 +59,12 @@ function render(){
  $('reference-note').textContent=state.method==='S_EMP'?'Employment is the initial reference, not a preferred estimator.':`${METHODS[state.method]} selected. No preferred estimator.`;
  document.querySelectorAll('[data-scenario]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scenario===state.scenario)));
  $('download-method').href=`./downloads/constituency_savings_${state.method}.csv`;
- $('map-method').textContent=`${METHODS[state.method]} · ${scenarioName().toLowerCase()} · fixed national inputs`;
- $('map-scenario-label').textContent=scenarioName();$('map-total').textContent=money(data.metadata.national[state.scenario]);
+ $('map-measure').value=state.measure;
+ $('map-method').textContent=`${METHODS[state.method]} · ${mapLabel().toLowerCase()}`;
+ $('map-scenario-label').textContent=mapLabel();
+ const current=data.metadata.national.CURRENT,additional=data.metadata.national[state.scenario];
+ $('map-total').textContent=money(state.measure==='CURRENT'?current:state.measure==='TOTAL'?current+additional:additional);
+ $('map-total-note').textContent=`${state.measure==='ADDITIONAL'?'Additional annual relief':'Annual BICS relief'} across Great Britain · ${state.measure==='CURRENT'?'current eligibility forecast':'quantified scope'}`;
  renderRanking();renderMapColours();
  $('seat-results').hidden=!state.seat;
  if(!state.seat){document.title='BICS Expansion Explorer';return;}
@@ -65,12 +72,24 @@ function render(){
  document.title=`${r.pcon24_name} | BICS Expansion Explorer`;
  $('seat-place').textContent=`${r.nation}${r.region===r.nation?'':` · ${r.region}`} · PCON24`;
  $('seat-title').textContent=r.pcon24_name;
- for(const [id,s] of [['seat-c','C_ALL'],['seat-be','BE_ALL'],['seat-extra','BE_EXTRA']]){const range=seatRange(state.seat,s);$(id).textContent=rangeMoney(range);$(id).title='Range across three geographical allocation methods; fixed national reference';}
+ $('seat-extra').textContent=rangeMoney(seatRange(state.seat,'BE_EXTRA'));
+ renderPolicyComparison(r);
  $('baseline-detail').innerHTML=`<p>Allocated current-policy BICS baseline (published 2027/28 forecast): <strong>${money(r.CURRENT_gbp_per_year,{precise:true})}/year</strong>. Equivalent Supercharger support is accounted for separately: ${new Intl.NumberFormat('en-GB',{maximumFractionDigits:0}).format(r.equivalent_supercharger_mwh)} MWh of modelled qualifying electricity.</p><p>Gross relief under manufacturing expansion, including retained non-manufacturing baseline: <strong>${money(r.C_ALL_gross_gbp_per_year,{precise:true})}</strong>; under all production: <strong>${money(r.BE_ALL_gross_gbp_per_year,{precise:true})}</strong>. The main figures include additional savings within already listed industries. Across GB, CURRENT matches 15.7 TWh, or £628m at the exercise rate of £40/MWh. Nuclear/gas increments remain unestimated.</p>`;
- $('sensitivity-detail').innerHTML=`<div class="section-heading"><div><p class="eyebrow">How the local range is constructed</p><h3>${scenarioName()}: allocation method comparison</h3></div></div><div class="scenario-table-scroll"><table><caption>The headline takes the lowest and highest of these three local estimates. All use the same national reference.</caption><thead><tr><th scope="col">Allocation method</th><th scope="col">Additional annual savings</th></tr></thead><tbody>${Object.entries(METHODS).map(([method,label])=>`<tr${state.method===method?' class="selected-scenario-row"':''}><th scope="row">${label}${state.method===method?' (selected)':''}</th><td>${money(selectedValue(selectedRow(method)))}</td></tr>`).join('')}</tbody></table></div><p>Only the geographical allocation changes. National electricity inputs, industry eligibility, £40/MWh, full take-up and the published Supercharger reference remain fixed. There is no national lower/upper consumption or support scenario in this range.</p><p>This measures sensitivity to three allocation approaches. It is not a confidence interval or a complete uncertainty range. All methods share national input and coverage limitations; actual savings could fall outside the local range. Industry figures and map shading below show the selected allocation method.</p><p>Production figures are quantified subtotals: activities requiring unverified sector shares are not estimated. This does not mean those activities are ineligible or receive no benefit. <a href="./methodology.html#coverage">See coverage and the source audit</a>.</p>`;
+ $('sensitivity-detail').innerHTML=`<div class="section-heading"><div><p class="eyebrow">How the local range is constructed</p><h3>${scenarioName()}: allocation method comparison</h3></div></div><div class="scenario-table-scroll"><table><caption>Each headline range takes the lowest and highest of the three estimates in its column. All use the same national reference.</caption><thead><tr><th scope="col">Allocation method</th><th scope="col">Without expansion</th><th scope="col">Additional relief</th><th scope="col">With expansion</th></tr></thead><tbody>${Object.entries(METHODS).map(([method,label])=>`<tr${state.method===method?' class="selected-scenario-row"':''}><th scope="row">${label}${state.method===method?' (selected)':''}</th><td>${money(policyValue(selectedRow(method),state.scenario,'CURRENT'))}</td><td>${money(selectedValue(selectedRow(method)))}</td><td>${money(policyValue(selectedRow(method),state.scenario,'TOTAL'))}</td></tr>`).join('')}</tbody></table></div><p>Only the geographical allocation changes. National electricity inputs, industry eligibility, £40/MWh, full take-up and the published Supercharger reference remain fixed. There is no national lower/upper consumption or support scenario in this range.</p><p>With-expansion totals are calculated as current plus additional relief within each method before taking the range. The endpoints of separate ranges should not be added together. This measures sensitivity to three allocation approaches. It is not a confidence interval or a complete uncertainty range. All methods share national input and coverage limitations; actual savings could fall outside the local range. The map uses the selected map measure. The industry breakdown below shows additional relief under the selected allocation method.</p><p>Production figures are quantified subtotals: activities requiring unverified sector shares are not estimated. This does not mean those activities are ineligible or receive no benefit. <a href="./methodology.html#coverage">See coverage and the source audit</a>.</p>`;
  renderConsumptionComparison();
  $('breakdown-scenario').textContent=`${scenarioName()} · ${METHODS[state.method]}`;
  renderSections(r);renderComparison();renderIndustries();
+}
+function renderPolicyComparison(r){
+ const rows=Object.keys(METHODS).map(m=>selectedRow(m));
+ $('seat-policy-title').textContent=scenarioName();
+ for(const [id,measure] of [['seat-current','CURRENT'],['seat-additional','ADDITIONAL'],['seat-total','TOTAL']]){
+  $(id).textContent=rangeMoney(policyRange(rows,state.scenario,measure));
+  $(id).title='Minimum and maximum across the three allocation methods; combined totals are calculated within each method.';
+ }
+ const current=policyValue(r,state.scenario,'CURRENT'),extra=policyValue(r,state.scenario,'ADDITIONAL'),total=current+extra;
+ const share=total>0?current/total*100:0;
+ $('policy-stack').innerHTML=`<p>Selected allocation: ${METHODS[state.method]}. ${money(current)} current + ${money(extra)} additional = ${money(total)} with expansion.</p><div class="policy-stack-bar" role="img" aria-label="${money(current,{precise:true})} current BICS plus ${money(extra,{precise:true})} additional relief equals ${money(total,{precise:true})} with expansion"><span class="policy-stack-current" style="width:${share}%"></span><span class="policy-stack-extra" style="width:${total>0?100-share:0}%"></span></div><div class="policy-stack-labels"><span><i class="policy-stack-current" aria-hidden="true"></i>Current BICS</span><span><i class="policy-stack-extra" aria-hidden="true"></i>Additional relief</span></div>`;
 }
 function renderConsumptionComparison(){
  const rows=Object.keys(METHODS).map(m=>comparisonByKey.get(`${state.seat}/${m}`));
@@ -107,8 +126,8 @@ async function renderIndustries(){
  }
 }
 function renderRanking(){
- const sorted=seats.map(s=>byKey.get(`${s.pcon24_code}/${state.method}`)).sort((a,b)=>selectedValue(b)-selectedValue(a)).slice(0,6);
- $('ranking').innerHTML=sorted.map(r=>`<li><button data-code="${r.pcon24_code}"><span>${esc(r.pcon24_name)}</span><strong>${money(selectedValue(r))}</strong></button></li>`).join('');
+ const sorted=seats.map(s=>byKey.get(`${s.pcon24_code}/${state.method}`)).sort((a,b)=>mapValue(b)-mapValue(a)).slice(0,6);
+ $('ranking').innerHTML=sorted.map(r=>`<li><button data-code="${r.pcon24_code}"><span>${esc(r.pcon24_name)}</span><strong>${money(mapValue(r))}</strong></button></li>`).join('');
 }
 function downloadText(contents,name,type='text/csv;charset=utf-8'){
  const url=URL.createObjectURL(new Blob([contents],{type}));const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
@@ -135,7 +154,7 @@ async function setupMap(){
    const p=document.createElementNS(ns,'path');p.setAttribute('d',r.path);p.setAttribute('class','seat-shape');p.dataset.code=r.code;p.setAttribute('role','button');p.setAttribute('tabindex',i===0?'0':'-1');
    p.addEventListener('click',()=>{if(!drag?.moved)chooseSeat(r.code);});
    p.addEventListener('pointerenter',e=>showMapTooltip(e,r.code));p.addEventListener('pointermove',e=>moveMapTooltip(e));p.addEventListener('pointerleave',()=>{$('map-tooltip').hidden=true;});
-   p.addEventListener('focus',()=>{$('map-caption').textContent=`${r.name}: ${money(selectedValue(byKey.get(`${r.code}/${state.method}`)))} per year. Press Enter to open; arrow keys move between seats.`;});
+   p.addEventListener('focus',()=>{$('map-caption').textContent=`${r.name}: ${money(mapValue(byKey.get(`${r.code}/${state.method}`)))} per year · ${mapLabel()}. Press Enter to open; arrow keys move between seats.`;});
    p.addEventListener('keydown',e=>{
     if(['Enter',' '].includes(e.key)){e.preventDefault();chooseSeat(r.code);}
     else if(['ArrowRight','ArrowDown','ArrowLeft','ArrowUp','Home','End'].includes(e.key)){
@@ -163,9 +182,11 @@ function setView(){$('map').setAttribute('viewBox',view.join(' '));}
 function zoom(factor){const width=Math.min(baseView[2]*1.2,Math.max(baseView[2]/10,view[2]*factor));const f=width/view[2];view=[view[0]+view[2]*(1-f)/2,view[1]+view[3]*(1-f)/2,width,view[3]*f];setView();}
 function renderMapColours(){
  if(!mapData)return;
- for(const p of mapPaths){const r=byKey.get(`${p.dataset.code}/${state.method}`),v=selectedValue(r);p.setAttribute('fill',colours[colourBin(v)]);p.classList.toggle('selected',state.seat===p.dataset.code);p.setAttribute('aria-label',`${r.pcon24_name}, ${money(v)} under fixed national inputs; tested range ${rangeMoney(seatRange(r.pcon24_code))}. Open constituency results.`);if(state.seat)p.setAttribute('tabindex',p.dataset.code===state.seat?'0':'-1');}
+ $('map-tooltip').hidden=true;
+ $('map-caption').textContent=`${mapLabel()}. Hover or select a constituency to compare current and expanded BICS relief.`;
+ for(const p of mapPaths){const r=byKey.get(`${p.dataset.code}/${state.method}`),v=mapValue(r);p.setAttribute('fill',colours[colourBin(v)]);p.classList.toggle('selected',state.seat===p.dataset.code);p.setAttribute('aria-label',`${r.pcon24_name}, ${money(v)} · ${mapLabel()}; tested range ${rangeMoney(mapRange(r.pcon24_code))}. Open constituency results.`);if(state.seat)p.setAttribute('tabindex',p.dataset.code===state.seat?'0':'-1');}
 }
-function showMapTooltip(e,code){const r=byKey.get(`${code}/${state.method}`);$('map-tooltip').innerHTML=`${esc(r.pcon24_name)}<strong>${rangeMoney(seatRange(code))}/year</strong><span>Range across three allocation methods</span>`;$('map-tooltip').hidden=false;moveMapTooltip(e);$('map-caption').textContent=`${r.pcon24_name} · ${scenarioName()} · tested range ${rangeMoney(seatRange(code))} per year`;}
+function showMapTooltip(e,code){const r=byKey.get(`${code}/${state.method}`);$('map-tooltip').innerHTML=`${esc(r.pcon24_name)}<strong>${rangeMoney(mapRange(code))}/year</strong><span>${esc(MAP_MEASURES[state.measure])} · range across three allocation methods</span>`;$('map-tooltip').hidden=false;moveMapTooltip(e);$('map-caption').textContent=`${r.pcon24_name} · ${mapLabel()} · tested range ${rangeMoney(mapRange(code))} per year`;}
 function moveMapTooltip(e){const rect=$('map-canvas').getBoundingClientRect(),tip=$('map-tooltip');tip.style.left=`${Math.max(5,Math.min(e.clientX-rect.left+12,rect.width-tip.offsetWidth-5))}px`;tip.style.top=`${Math.max(5,Math.min(e.clientY-rect.top-55,rect.height-tip.offsetHeight-5))}px`;}
 
 async function init(){
@@ -178,12 +199,16 @@ async function init(){
   byKey=new Map(data.seats.map(r=>[`${r.pcon24_code}/${r.spatial_method}`,r]));seats=data.seats.filter(r=>r.spatial_method==='S_EMP');
   state=readState(location.hash,new Set(seats.map(s=>s.pcon24_code)));
   $('national-c').textContent=money(data.metadata.national.C_ALL);$('national-be').textContent=money(data.metadata.national.BE_ALL);
+  $('national-current').textContent=money(data.metadata.national.CURRENT);
+  $('national-c-total').textContent=money(data.metadata.national.CURRENT+data.metadata.national.C_ALL);
+  $('national-be-total').textContent=money(data.metadata.national.CURRENT+data.metadata.national.BE_ALL);
   for(const id of ['national-c','national-be'])$(id).classList.remove('loading-text');
   $('version').textContent=`${data.metadata.model_version} · Evidence: 22 October 2026 · Electricity: 2025`;
   $('app-content').hidden=false;
   bindSearch();
   document.querySelectorAll('[data-scenario]').forEach(b=>b.addEventListener('click',()=>{showAll=false;update({scenario:b.dataset.scenario});announce(`${scenarioName()} selected.`);}));
   $('method').addEventListener('change',e=>{update({method:e.target.value});announce(`${METHODS[state.method]} selected.`);});
+  $('map-measure').addEventListener('change',e=>{update({measure:e.target.value});announce(`${MAP_MEASURES[state.measure]} shown on the map.`);});
   $('method-comparison').addEventListener('click',e=>{const b=e.target.closest('[data-method]');if(b){update({method:b.dataset.method});announce(`${METHODS[state.method]} selected.`);$('method').focus({preventScroll:true});}});
   $('show-industries').addEventListener('click',()=>{showAll=!showAll;renderIndustries();});
   $('ranking').addEventListener('click',e=>{const b=e.target.closest('[data-code]');if(b)chooseSeat(b.dataset.code);});
