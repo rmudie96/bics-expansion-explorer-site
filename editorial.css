@@ -148,6 +148,7 @@
 @media (max-width:800px) { .policy-cards { grid-template-columns: 1fr; } .policy-card { padding: 18px; } .policy-heading { align-items: stretch; flex-direction: column; } .map-policy-controls { min-width: 0; width: 100%; } .policy-card strong { font-size: 27px; margin: 8px 0; } }
 
 /* Give the current scheme and expanded scheme the same visual weight. */
+.national-overview { display: block; min-width: 0; }
 .national-policy-pair { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin: 20px 0 14px; }
 .national-policy-card { padding: 16px 10px; border: 1px solid currentColor; }
 .national-policy-card span, .national-policy-card small { display: block; line-height: 1.6; }
