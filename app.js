@@ -127,8 +127,8 @@ async function renderIndustries(){
  }
 }
 function renderRanking(){
- const sorted=seats.map(s=>byKey.get(`${s.pcon24_code}/${state.method}`)).sort((a,b)=>mapValue(b)-mapValue(a)).slice(0,6);
- $('ranking').innerHTML=sorted.map(r=>`<li><button data-code="${r.pcon24_code}"><span>${esc(r.pcon24_name)}</span><strong>${money(mapValue(r))}</strong></button></li>`).join('');
+ const sorted=seats.map(s=>byKey.get(`${s.pcon24_code}/${state.method}`)).sort((a,b)=>selectedValue(b)-selectedValue(a)).slice(0,6);
+ $('ranking').innerHTML=sorted.map(r=>`<li><button data-code="${r.pcon24_code}"><span>${esc(r.pcon24_name)}</span><strong>${money(selectedValue(r))}</strong></button></li>`).join('');
 }
 function downloadText(contents,name,type='text/csv;charset=utf-8'){
  const url=URL.createObjectURL(new Blob([contents],{type}));const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
