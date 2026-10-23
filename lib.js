@@ -1,7 +1,7 @@
 export const METHODS={S_EMP:'Employment-based',S_GVA:'GVA-adjusted',S_PUR:'Expenditure-adjusted'};
-export const MAP_MEASURES={CURRENT:'Without expansion',ADDITIONAL:'Additional relief',TOTAL:'With expansion'};
+export const MAP_MEASURES={CURRENT:'Without expansion',TOTAL:'With expansion'};
 export function policyValue(row,scenario,measure='ADDITIONAL'){
- if(!['C_ALL','BE_ALL'].includes(scenario)||!MAP_MEASURES[measure])throw Error('Unknown policy view');
+ if(!['C_ALL','BE_ALL'].includes(scenario)||!['CURRENT','ADDITIONAL','TOTAL'].includes(measure))throw Error('Unknown policy view');
  const current=row.CURRENT_gbp_per_year,additional=row[`${scenario}_gbp_per_year`];
  if(!Number.isFinite(current)||!Number.isFinite(additional))throw Error('Missing policy values');
  return measure==='CURRENT'?current:measure==='TOTAL'?current+additional:additional;
@@ -34,9 +34,9 @@ export function searchSeats(seats,query,limit=8){
 }
 export function readState(hash,validCodes){
  const p=new URLSearchParams(hash.replace(/^#/,''));
- return {seat:validCodes.has(p.get('seat'))?p.get('seat'):null,scenario:p.get('scenario')==='C_ALL'?'C_ALL':'BE_ALL',method:METHODS[p.get('method')]?p.get('method'):'S_EMP',measure:MAP_MEASURES[p.get('measure')]?p.get('measure'):'ADDITIONAL'};
+ return {seat:validCodes.has(p.get('seat'))?p.get('seat'):null,scenario:p.get('scenario')==='C_ALL'?'C_ALL':'BE_ALL',method:METHODS[p.get('method')]?p.get('method'):'S_EMP',measure:MAP_MEASURES[p.get('measure')]?p.get('measure'):'TOTAL'};
 }
-export function stateHash(state){const p=new URLSearchParams();if(state.seat)p.set('seat',state.seat);p.set('scenario',state.scenario);p.set('method',state.method);p.set('measure',MAP_MEASURES[state.measure]?state.measure:'ADDITIONAL');return '#'+p;}
+export function stateHash(state){const p=new URLSearchParams();if(state.seat)p.set('seat',state.seat);p.set('scenario',state.scenario);p.set('method',state.method);p.set('measure',MAP_MEASURES[state.measure]?state.measure:'TOTAL');return '#'+p;}
 export function csv(rows){const cell=v=>'"'+String(v??'').replaceAll('"','""')+'"';return '\uFEFF'+rows.map(r=>r.map(cell).join(',')).join('\r\n')+'\r\n';}
 export function industryRows(raw,registry){return raw.map(r=>({...registry[r[0]],CURRENT:r[1],C_ALL:r[2],BE_ALL:r[3],BE_EXTRA:r[3]-r[2],grid_mwh:r[4],supercharger_mwh:r[5]}));}
 export function divisionBreakdown(rows,scenario){const m=new Map();for(const r of rows){if(r[scenario]<=0)continue;const k=r.sic2;const old=m.get(k)||{code:k,name:DIVISIONS[k]||r.industry_name,section:r.section,value:0,classes:[]};old.value+=r[scenario];old.classes.push(r);m.set(k,old);}return [...m.values()].sort((a,b)=>b.value-a.value);}

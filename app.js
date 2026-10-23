@@ -65,10 +65,9 @@ function render(){
  const current=data.metadata.national.CURRENT,additional=data.metadata.national[state.scenario];
  $('national-current').textContent=money(current);
  $('national-expanded').textContent=money(current+additional);
- $('national-selected-additional').textContent=money(additional);
  $('national-expanded-scope').textContent=state.scenario==='C_ALL'?'Manufacturing expansion · quantified subtotal, per year':'Production expansion · quantified subtotal, per year';
- $('map-total').textContent=money(state.measure==='CURRENT'?current:state.measure==='TOTAL'?current+additional:additional);
- $('map-total-note').textContent=`${state.measure==='ADDITIONAL'?'Additional annual relief':'Annual BICS relief'} across Great Britain · ${state.measure==='CURRENT'?'current eligibility forecast':'quantified scope'}`;
+ $('map-total').textContent=money(state.measure==='CURRENT'?current:current+additional);
+ $('map-total-note').textContent=`Annual BICS relief across Great Britain · ${state.measure==='CURRENT'?'current eligibility forecast':'quantified scope'}`;
  renderRanking();renderMapColours();
  $('seat-results').hidden=!state.seat;
  if(!state.seat){document.title='BICS Expansion Explorer';return;}
@@ -79,7 +78,7 @@ function render(){
  $('seat-extra').textContent=rangeMoney(seatRange(state.seat,'BE_EXTRA'));
  renderPolicyComparison(r);
  $('baseline-detail').innerHTML=`<p>Allocated current-policy BICS baseline (published 2027/28 forecast): <strong>${money(r.CURRENT_gbp_per_year,{precise:true})}/year</strong>. Equivalent Supercharger support is accounted for separately: ${new Intl.NumberFormat('en-GB',{maximumFractionDigits:0}).format(r.equivalent_supercharger_mwh)} MWh of modelled qualifying electricity.</p><p>Gross relief under manufacturing expansion, including retained non-manufacturing baseline: <strong>${money(r.C_ALL_gross_gbp_per_year,{precise:true})}</strong>; under all production: <strong>${money(r.BE_ALL_gross_gbp_per_year,{precise:true})}</strong>. The main figures include additional savings within already listed industries. Across GB, CURRENT matches 15.7 TWh, or £628m at the exercise rate of £40/MWh. Nuclear/gas increments remain unestimated.</p>`;
- $('sensitivity-detail').innerHTML=`<div class="section-heading"><div><p class="eyebrow">How the local range is constructed</p><h3>${scenarioName()}: allocation method comparison</h3></div></div><div class="scenario-table-scroll"><table><caption>Each headline range takes the lowest and highest of the three estimates in its column. All use the same national reference.</caption><thead><tr><th scope="col">Allocation method</th><th scope="col">Without expansion</th><th scope="col">Additional relief</th><th scope="col">With expansion</th></tr></thead><tbody>${Object.entries(METHODS).map(([method,label])=>`<tr${state.method===method?' class="selected-scenario-row"':''}><th scope="row">${label}${state.method===method?' (selected)':''}</th><td>${money(policyValue(selectedRow(method),state.scenario,'CURRENT'))}</td><td>${money(selectedValue(selectedRow(method)))}</td><td>${money(policyValue(selectedRow(method),state.scenario,'TOTAL'))}</td></tr>`).join('')}</tbody></table></div><p>Only the geographical allocation changes. National electricity inputs, industry eligibility, £40/MWh, full take-up and the published Supercharger reference remain fixed. There is no national lower/upper consumption or support scenario in this range.</p><p>With-expansion totals are calculated as current plus additional relief within each method before taking the range. The endpoints of separate ranges should not be added together. This measures sensitivity to three allocation approaches. It is not a confidence interval or a complete uncertainty range. All methods share national input and coverage limitations; actual savings could fall outside the local range. The map uses the selected map measure. The industry breakdown below shows additional relief under the selected allocation method.</p><p>Production figures are quantified subtotals: activities requiring unverified sector shares are not estimated. This does not mean those activities are ineligible or receive no benefit. <a href="./methodology.html#coverage">See coverage and the source audit</a>.</p>`;
+ $('sensitivity-detail').innerHTML=`<div class="section-heading"><div><p class="eyebrow">How the local range is constructed</p><h3>${scenarioName()}: allocation method comparison</h3></div></div><div class="scenario-table-scroll"><table><caption>Each headline range takes the lowest and highest of the three estimates in its column. All use the same national reference.</caption><thead><tr><th scope="col">Allocation method</th><th scope="col">Without expansion</th><th scope="col">With expansion</th></tr></thead><tbody>${Object.entries(METHODS).map(([method,label])=>`<tr${state.method===method?' class="selected-scenario-row"':''}><th scope="row">${label}${state.method===method?' (selected)':''}</th><td>${money(policyValue(selectedRow(method),state.scenario,'CURRENT'))}</td><td>${money(policyValue(selectedRow(method),state.scenario,'TOTAL'))}</td></tr>`).join('')}</tbody></table></div><p>Only the geographical allocation changes. National electricity inputs, industry eligibility, £40/MWh, full take-up and the published Supercharger reference remain fixed. There is no national lower/upper consumption or support scenario in this range.</p><p>With-expansion totals are calculated as the without-expansion amount plus the increase from expansion within each method before taking the range. The endpoints of separate ranges should not be added together. This measures sensitivity to three allocation approaches. It is not a confidence interval or a complete uncertainty range. All methods share national input and coverage limitations; actual savings could fall outside the local range. The map uses the selected map measure. The industry breakdown below shows the increase from expansion under the selected allocation method.</p><p>Production figures are quantified subtotals: activities requiring unverified sector shares are not estimated. This does not mean those activities are ineligible or receive no benefit. <a href="./methodology.html#coverage">See coverage and the source audit</a>.</p>`;
  renderConsumptionComparison();
  $('breakdown-scenario').textContent=`${scenarioName()} · ${METHODS[state.method]}`;
  renderSections(r);renderComparison();renderIndustries();
@@ -87,13 +86,11 @@ function render(){
 function renderPolicyComparison(r){
  const rows=Object.keys(METHODS).map(m=>selectedRow(m));
  $('seat-policy-title').textContent=scenarioName();
- for(const [id,measure] of [['seat-current','CURRENT'],['seat-additional','ADDITIONAL'],['seat-total','TOTAL']]){
+ for(const [id,measure] of [['seat-current','CURRENT'],['seat-total','TOTAL']]){
   $(id).textContent=rangeMoney(policyRange(rows,state.scenario,measure));
   $(id).title='Minimum and maximum across the three allocation methods; combined totals are calculated within each method.';
  }
- const current=policyValue(r,state.scenario,'CURRENT'),extra=policyValue(r,state.scenario,'ADDITIONAL'),total=current+extra;
- const share=total>0?current/total*100:0;
- $('policy-stack').innerHTML=`<p>Selected allocation: ${METHODS[state.method]}. ${money(current)} current + ${money(extra)} additional = ${money(total)} with expansion.</p><div class="policy-stack-bar" role="img" aria-label="${money(current,{precise:true})} current BICS plus ${money(extra,{precise:true})} additional relief equals ${money(total,{precise:true})} with expansion"><span class="policy-stack-current" style="width:${share}%"></span><span class="policy-stack-extra" style="width:${total>0?100-share:0}%"></span></div><div class="policy-stack-labels"><span><i class="policy-stack-current" aria-hidden="true"></i>Current BICS</span><span><i class="policy-stack-extra" aria-hidden="true"></i>Additional relief</span></div>`;
+
 }
 function renderConsumptionComparison(){
  const rows=Object.keys(METHODS).map(m=>comparisonByKey.get(`${state.seat}/${m}`));
@@ -108,7 +105,7 @@ function renderSections(r){
  $('section-breakdown').innerHTML='<div class="section-bars">'+'BCDE'.split('').map(s=>{const v=r[`section_${s}_gbp_per_year`];return `<div class="section-bar"><span>${SECTIONS[s]}</span><strong title="${money(v,{precise:true})}">${s==='D'?'Not estimated':money(v)}</strong><i style="width:${Math.max(v/max*100,0)}%"></i><small>Section ${s}</small></div>`;}).join('')+'</div>';
 }
 function renderComparison(){
- $('method-comparison').innerHTML=Object.entries(METHODS).map(([method,label])=>`<button class="method-card" data-method="${method}" aria-pressed="${state.method===method}"><span class="method-label">${label}${state.method===method?'<i>Selected</i>':''}</span><strong title="${money(selectedValue(selectedRow(method)),{precise:true})}">${money(selectedValue(selectedRow(method)))}</strong><small>${explanations[method]}</small></button>`).join('');
+ $('method-comparison').innerHTML=Object.entries(METHODS).map(([method,label])=>`<button class="method-card" data-method="${method}" aria-pressed="${state.method===method}"><span class="method-label">${label}${state.method===method?'<i>Selected</i>':''}</span><strong title="${money(policyValue(selectedRow(method),state.scenario,state.measure),{precise:true})}">${money(policyValue(selectedRow(method),state.scenario,state.measure))}</strong><small>${explanations[method]}</small></button>`).join('');
 }
 async function getIndustry(code,method){
  const key=`${code}/${method}`;
@@ -225,6 +222,6 @@ async function init(){
   if(state.seat)$('seat-results').scrollIntoView({behavior:'instant',block:'start'});
   else if(['#search','#map-section','#downloads'].includes(location.hash))$(location.hash.slice(1)).scrollIntoView({behavior:'instant',block:'start'});
   setupMap();
- }catch(e){$('load-error').textContent='The calculated results could not be loaded. Refresh the page or download the results directly below.';$('load-error').hidden=false;const a=document.createElement('a');a.href='./downloads/constituency_savings_all_methods.csv';a.textContent='Download the full CSV';$('load-error').append(document.createElement('br'),a);$('national-current').textContent='Unavailable';$('national-expanded').textContent='Unavailable';$('national-selected-additional').textContent='Unavailable';$('version').textContent='Data unavailable';console.error(e);}
+ }catch(e){$('load-error').textContent='The calculated results could not be loaded. Refresh the page or download the results directly below.';$('load-error').hidden=false;const a=document.createElement('a');a.href='./downloads/constituency_savings_all_methods.csv';a.textContent='Download the full CSV';$('load-error').append(document.createElement('br'),a);$('national-current').textContent='Unavailable';$('national-expanded').textContent='Unavailable';$('version').textContent='Data unavailable';console.error(e);}
 }
 init();
