@@ -59,10 +59,14 @@ function render(){
  $('reference-note').textContent=state.method==='S_EMP'?'Employment is the initial reference, not a preferred estimator.':`${METHODS[state.method]} selected. No preferred estimator.`;
  document.querySelectorAll('[data-scenario]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scenario===state.scenario)));
  $('download-method').href=`./downloads/constituency_savings_${state.method}.csv`;
- $('map-measure').value=state.measure;
+ document.querySelectorAll('[data-measure]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.measure===state.measure)));
  $('map-method').textContent=`${METHODS[state.method]} · ${mapLabel().toLowerCase()}`;
  $('map-scenario-label').textContent=mapLabel();
  const current=data.metadata.national.CURRENT,additional=data.metadata.national[state.scenario];
+ $('national-current').textContent=money(current);
+ $('national-expanded').textContent=money(current+additional);
+ $('national-selected-additional').textContent=money(additional);
+ $('national-expanded-scope').textContent=state.scenario==='C_ALL'?'Manufacturing expansion · quantified subtotal, per year':'Production expansion · quantified subtotal, per year';
  $('map-total').textContent=money(state.measure==='CURRENT'?current:state.measure==='TOTAL'?current+additional:additional);
  $('map-total-note').textContent=`${state.measure==='ADDITIONAL'?'Additional annual relief':'Annual BICS relief'} across Great Britain · ${state.measure==='CURRENT'?'current eligibility forecast':'quantified scope'}`;
  renderRanking();renderMapColours();
@@ -198,17 +202,12 @@ async function init(){
   comparisonByKey=new Map(consumption.seats.map(r=>[`${r.pcon24_code}/${r.spatial_method}`,r]));
   byKey=new Map(data.seats.map(r=>[`${r.pcon24_code}/${r.spatial_method}`,r]));seats=data.seats.filter(r=>r.spatial_method==='S_EMP');
   state=readState(location.hash,new Set(seats.map(s=>s.pcon24_code)));
-  $('national-c').textContent=money(data.metadata.national.C_ALL);$('national-be').textContent=money(data.metadata.national.BE_ALL);
-  $('national-current').textContent=money(data.metadata.national.CURRENT);
-  $('national-c-total').textContent=money(data.metadata.national.CURRENT+data.metadata.national.C_ALL);
-  $('national-be-total').textContent=money(data.metadata.national.CURRENT+data.metadata.national.BE_ALL);
-  for(const id of ['national-c','national-be'])$(id).classList.remove('loading-text');
   $('version').textContent=`${data.metadata.model_version} · Evidence: 22 October 2026 · Electricity: 2025`;
   $('app-content').hidden=false;
   bindSearch();
   document.querySelectorAll('[data-scenario]').forEach(b=>b.addEventListener('click',()=>{showAll=false;update({scenario:b.dataset.scenario});announce(`${scenarioName()} selected.`);}));
   $('method').addEventListener('change',e=>{update({method:e.target.value});announce(`${METHODS[state.method]} selected.`);});
-  $('map-measure').addEventListener('change',e=>{update({measure:e.target.value});announce(`${MAP_MEASURES[state.measure]} shown on the map.`);});
+  document.querySelectorAll('[data-measure]').forEach(b=>b.addEventListener('click',()=>{update({measure:b.dataset.measure});announce(`${MAP_MEASURES[state.measure]} shown on the map.`);}));
   $('method-comparison').addEventListener('click',e=>{const b=e.target.closest('[data-method]');if(b){update({method:b.dataset.method});announce(`${METHODS[state.method]} selected.`);$('method').focus({preventScroll:true});}});
   $('show-industries').addEventListener('click',()=>{showAll=!showAll;renderIndustries();});
   $('ranking').addEventListener('click',e=>{const b=e.target.closest('[data-code]');if(b)chooseSeat(b.dataset.code);});
@@ -226,6 +225,6 @@ async function init(){
   if(state.seat)$('seat-results').scrollIntoView({behavior:'instant',block:'start'});
   else if(['#search','#map-section','#downloads'].includes(location.hash))$(location.hash.slice(1)).scrollIntoView({behavior:'instant',block:'start'});
   setupMap();
- }catch(e){$('load-error').textContent='The calculated results could not be loaded. Refresh the page or download the results directly below.';$('load-error').hidden=false;const a=document.createElement('a');a.href='./downloads/constituency_savings_all_methods.csv';a.textContent='Download the full CSV';$('load-error').append(document.createElement('br'),a);$('national-c').textContent='Unavailable';$('national-be').textContent='Unavailable';$('version').textContent='Data unavailable';console.error(e);}
+ }catch(e){$('load-error').textContent='The calculated results could not be loaded. Refresh the page or download the results directly below.';$('load-error').hidden=false;const a=document.createElement('a');a.href='./downloads/constituency_savings_all_methods.csv';a.textContent='Download the full CSV';$('load-error').append(document.createElement('br'),a);$('national-current').textContent='Unavailable';$('national-expanded').textContent='Unavailable';$('national-selected-additional').textContent='Unavailable';$('version').textContent='Data unavailable';console.error(e);}
 }
 init();

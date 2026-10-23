@@ -146,3 +146,20 @@
 .policy-stack-labels i { display: inline-block; width: 12px; height: 12px; margin-right: 7px; }
 .policy-baseline-note { font-size: 13px; line-height: 1.7; margin: 15px 0 22px; }
 @media (max-width:800px) { .policy-cards { grid-template-columns: 1fr; } .policy-card { padding: 18px; } .policy-heading { align-items: stretch; flex-direction: column; } .map-policy-controls { min-width: 0; width: 100%; } .policy-card strong { font-size: 27px; margin: 8px 0; } }
+
+/* Give the current scheme and expanded scheme the same visual weight. */
+.national-policy-pair { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin: 20px 0 14px; }
+.national-policy-card { padding: 16px 10px; border: 1px solid currentColor; }
+.national-policy-card span, .national-policy-card small { display: block; line-height: 1.6; }
+.national-policy-card span { font-size: 13px; min-height: 3.2em; }
+.national-policy-card small { font-size: 11px; }
+.national-policy-card strong { display: block; font-size: clamp(20px,2.1vw,30px); margin: 12px 0; white-space: nowrap; }
+.national-additional { font-size: 13px; line-height: 1.6; }
+.national-scenario { width: 100%; }
+.national-scenario button { flex: 1; }
+.measure-switch { width: 100%; }
+.measure-switch button { flex: 1; white-space: normal; }
+.policy-card, .policy-card.total, .policy-card.additional { background: #f2f5ef; color: #123d39; border: 1px solid #c4d1c6; padding-top: 22px; }
+@media (max-width:700px) { .national-policy-pair { gap: 10px; } .national-policy-card { padding: 13px 8px; } .national-policy-card strong { font-size: 20px; } .measure-switch button { padding: 10px 7px; font-size: 12px; } }
+
+.policy-stack-current { background: #659b85; }
