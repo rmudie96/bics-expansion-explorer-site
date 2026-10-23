@@ -1,4 +1,4 @@
-import {allocationRange,rangeMoney,METHODS,MAP_MEASURES,policyValue,policyRange,SECTIONS,money,searchSeats,readState,stateHash,csv,industryRows,divisionBreakdown,colourBin} from './lib.js';
+import {allocationRange,rangeMoney,METHODS,MAP_MEASURES,policyValue,policyRange,SECTIONS,money,searchSeats,readState,stateHash,csv,industryRows,divisionBreakdown,colourBin} from './lib.js?v=739d46cec988';
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
